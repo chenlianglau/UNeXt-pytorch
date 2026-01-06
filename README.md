@@ -1,53 +1,48 @@
-# UNeXt
+# 复现UNeXt
 
-Official Pytorch Code base for [UNeXt: MLP-based Rapid Medical Image Segmentation Network](https://arxiv.org/abs/2203.04967), MICCAI 2022
+## 配置：
 
-[Paper](https://arxiv.org/abs/2203.04967) | [Project](https://jeya-maria-jose.github.io/UNext-web/)
+论文要求 Python 3.6.13, CUDA >=10.1 代码才能稳定运行
 
-## Introduction
-
-UNet and its latest extensions like TransUNet have been the leading medical image segmentation methods in recent years. However, these networks cannot be effectively adopted for rapid image segmentation in point-of-care applications as they are parameter-heavy, computationally complex and slow to use.  To this end, we propose UNeXt which is a Convolutional multilayer perceptron (MLP) based network for image segmentation. We design UNeXt in an effective way with an early convolutional stage and a MLP stage in the latent stage. We propose a tokenized MLP block where we efficiently tokenize and project the convolutional features and use MLPs to model the representation. To further boost the performance, we propose shifting the channels of the inputs while feeding in to MLPs so as to focus on learning local dependencies. Using tokenized MLPs in latent space reduces the number of parameters and computational complexity while being able to result in a better representation to help segmentation. The network also consists of skip connections between various levels of encoder and decoder.   We test UNeXt on multiple medical image segmentation datasets and show that we reduce the number of parameters by 72x, decrease the computational complexity by 68x, and improve the inference speed by 10x while also obtaining better segmentation performance over the  state-of-the-art medical image segmentation architectures.
-
-<p align="center">
-  <img src="imgs/unext.png" width="800"/>
-</p>
-
-
-## Using the code:
-
-The code is stable while using Python 3.6.13, CUDA >=10.1
-
-- Clone this repository:
+克隆存储库：
 ```bash
 git clone https://github.com/jeya-maria-jose/UNeXt-pytorch
 cd UNeXt-pytorch
 ```
 
-To install all the dependencies using conda:
+安装依赖包：
 
 ```bash
 conda env create -f environment.yml
 conda activate unext
 ```
 
-If you prefer pip, install following versions:
+实际上，在服务器上运行代码时会因为environment.yml不完整而产生报错，下面给我的解决方案：
 
 ```bash
-timm==0.3.2
-mmcv-full==1.2.7
-torch==1.7.1
-torchvision==0.8.2
-opencv-python==4.5.1.48
+conda install pandas==1.1.5 -y
+pip install albumentations==0.5.2 opencv-python-headless==4.5.1.48 --no-deps
+pip install imgaug==0.4.0
+conda install scikit-learn=0.24.2 -y
+conda install tqdm -y
 ```
 
-## Datasets
+依次安装上述依赖，即可补全environment.yml的缺失。
+
+在准备好依赖后，代码任然不能运行，看报错知GPU/PyTorch/CUDA版本不匹配。原因是作者在environment.yml指定pytorch的版本为1.7.1（支持的 GPU 架构是 sm_37, sm_50, sm_60, sm_70, sm_75），而我使用的显卡是sm_86架构，我的解决方案是换服务器，新的服务器GPU是2080ti，20系显卡使用sm_75架构从而与pytorch1.7.1相兼容，成功运行代码。
+
+## 数据集
 
 1) ISIC 2018 - [Link](https://challenge.isic-archive.com/data/)
 2) BUSI - [Link](https://www.kaggle.com/aryashah2k/breast-ultrasound-images-dataset)
 
-## Data Format
+我对BUSI数据集整理至以下的数据集存放格式要求，具体就是将原本的BUSI数据集中benign, malignant和normal文件夹中的.png文件按照名字中有无mask重新分为两个文件夹images和masks，其中images文件夹中的.png文件重命名为000-780.png，masks文件夹内分为0,1,2三个文件夹，文件夹1内是文件名含有mask_1的.png文件并重命名为001-017.png，文件夹2内是文件名含有mask_2的.png文件并重命名为001.png，文件夹0内是剩余的文件名含有mask的.png文件并重命名为001-780.png，可以看出如果是做语义分割而仅使用masks/0的话，images和mask/0中都有780张照片且一一对应。
 
-Make sure to put the files as the following structure (e.g. the number of classes is 2):
+将存放格式正确的inputs文件夹（需要在将BUSI文件夹放进inputs中），放在UNeXt-pytorch目录下。
+
+## 数据集存放格式
+
+请确保你的数据集文件夹存放的结构如下：
 
 ```
 inputs
@@ -72,29 +67,24 @@ inputs
             ├── ...
 ```
 
-For binary segmentation problems, just use folder 0.
+如果是语义分割则masks下二级文件夹就一个0；如果是实例分割就是上面所示。
 
-## Training and Validation
+## 模型训练和验证
 
-1. Train the model.
+进入到相应的文件夹后分别进行以下操作:
+
+1. 训练模型
 ```
 python train.py --dataset <dataset name> --arch UNext --name <exp name> --img_ext .png --mask_ext .png --lr 0.0001 --epochs 500 --input_w 512 --input_h 512 --b 8
 ```
-2. Evaluate.
+其中--dataset \<dataset name>是数据集路径，--name \<exp name>可以为模型取个名字，–img_ext .png --mask_ext .png要根据具体的图片格式改成png或者jpg
+
+模型训练过程截图
+
+
+
+2. 模型评估
 ```
 python val.py --name <exp name>
 ```
-
-### Acknowledgements:
-
-This code-base uses certain code-blocks and helper functions from [UNet++](https://github.com/4uiiurz1/pytorch-nested-unet), [Segformer](https://github.com/NVlabs/SegFormer), and [AS-MLP](https://github.com/svip-lab/AS-MLP). Naming credits to [Poojan](https://scholar.google.co.in/citations?user=9dhBHuAAAAAJ&hl=en).
-
-### Citation:
-```
-@article{valanarasu2022unext,
-  title={UNeXt: MLP-based Rapid Medical Image Segmentation Network},
-  author={Valanarasu, Jeya Maria Jose and Patel, Vishal M},
-  journal={arXiv preprint arXiv:2203.04967},
-  year={2022}
-}
-```
+–name \<exp name>这个就是上面自己取的那个名字
