@@ -80,11 +80,22 @@ python train.py --dataset <dataset name> --arch UNext --name <exp name> --img_ex
 其中--dataset \<dataset name>是数据集路径，--name \<exp name>可以为模型取个名字，–img_ext .png --mask_ext .png要根据具体的图片格式改成png或者jpg
 
 模型训练过程截图
+<p align="center">
+  <img src="imgs/train_0.png" width="1200"/>
+</p>
 
-
+模型训练结果
+<p align="center">
+  <img src="imgs/train_1.png" width="1200"/>
+</p>
 
 2. 模型评估
 ```
 python val.py --name <exp name>
 ```
 –name \<exp name>这个就是上面自己取的那个名字
+
+模型评估结果
+<p align="center">
+  <img src="imgs/val.png" width="1200"/>
+</p>
