@@ -36,7 +36,7 @@ conda install tqdm -y
 1) ISIC 2018 - [Link](https://challenge.isic-archive.com/data/)
 2) BUSI - [Link](https://www.kaggle.com/aryashah2k/breast-ultrasound-images-dataset)
 
-我对BUSI数据集整理至以下的数据集存放格式要求，具体就是将原本的BUSI数据集中benign, malignant和normal文件夹中的.png文件按照名字中有无mask重新分为两个文件夹images和masks，其中images文件夹中的.png文件重命名为000-780.png，masks文件夹内分为0,1,2三个文件夹，文件夹1内是文件名含有mask_1的.png文件并重命名为001-017.png，文件夹2内是文件名含有mask_2的.png文件并重命名为001.png，文件夹0内是剩余的文件名含有mask的.png文件并重命名为001-780.png，可以看出如果是做语义分割而仅使用masks/0的话，images和mask/0中都有780张照片且一一对应。
+我对BUSI数据集整理至以下的数据集存放格式要求，具体就是将原本的BUSI数据集中benign, malignant文件夹(normal文件夹直接扔掉因为原论文中说只用benign和malignant中的647张图片)中的.png文件按照名字中有无mask重新分为两个文件夹images和masks，其中images文件夹中的.png文件重命名为000-647.png，masks文件夹内分为0,1,2三个文件夹，文件夹1内是文件名含有mask_1的.png文件并重命名为001-017.png，文件夹2内是文件名含有mask_2的.png文件并重命名为001.png，文件夹0内是剩余的文件名含有mask的.png文件并重命名为001-647.png，可以看出如果是做语义分割而仅使用masks/0的话，images和mask/0中都有647张照片且一一对应。
 
 将存放格式正确的inputs文件夹（需要在将BUSI文件夹放进inputs中），放在UNeXt-pytorch目录下。
 
@@ -81,12 +81,12 @@ python train.py --dataset <dataset name> --arch UNext --name <exp name> --img_ex
 
 模型训练过程截图
 <p align="center">
-  <img src="imgs/train_0.png" width="1200"/>
+  <img src="imgs/train_f0.png" width="1200"/>
 </p>
 
 模型训练结果
 <p align="center">
-  <img src="imgs/train_1.png" width="1200"/>
+  <img src="imgs/train_f1.png" width="1200"/>
 </p>
 
 2. 模型评估
@@ -97,5 +97,5 @@ python val.py --name <exp name>
 
 模型评估结果
 <p align="center">
-  <img src="imgs/val.png" width="1200"/>
+  <img src="imgs/val_f.png" width="1200"/>
 </p>
